@@ -1,12 +1,6 @@
 import bodyParser from 'body-parser';
 
-export const setup = (app, {config}) => {
-  //Allow cross domain ajax
-  app.use('/*', setCrossDomainHeader);
-  return app;
-};
-
-const setCrossDomainHeader = (req, rsp, next) => {
+export const setCrossDomainHeader = (req, rsp, next) => {
   rsp.set({
     'Content-Type': 'application/json; charset=utf-8',
     'Access-Control-Allow-Origin': `${req.headers.origin}`,
