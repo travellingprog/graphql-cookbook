@@ -1,202 +1,25 @@
-# GraphQL Cookbook
+# TinyGQL Example
 
-Code example for building a graphql server through graphql-express.
+This is a playground for developing and testing TinyGQL, a GraphQL frontend client I'm building that is tiny, has a UMD wrapper and has zero external dependencies. It doesn't depend on using Browserify/Webpack/Rollup, or any other module bundler. It uses XMLHttpRequest rather than Fetch. In other words, you can just load it with a `<script>` tag and it will work in all common browsers.
+
+This playground was created by starting of fork of the [GraphQL Cookbook](https://github.com/appier/graphql-cookbook) repository, which provides a GraphQL-powered server with querying and mutations, as well as no database dependency.
 
 
-### Dependencies
+## Dependencies
 
 ```sh
 npm install
 ```
 
-### Run Application
+
+## Run Application
 
 ```sh
 npm start
 ```
 
-And open browser to http://localhost:18885/graphql .
+Open http://localhost:18885/tinygql on the browser to run the TinyGQL tests.
+
+Open http://localhost:18886/graphql to load a [GraphiQL](https://github.com/graphql/graphiql) page.
 
 
-### Code Structure
-
-src/index.js, config.js, and serverUtil.js demostrate how to setup a graphql server which allow CROS ajax. The server will use the schema in src/graphql/schema.js.
-
-The code in src/graphql/module are organized by the following section.
-
-* basic.js : Type definition and basic resolve implementation.
-* variable.js : Use variable to Simplify Query and define input type.
-* interface.js : Build an interface for fragment query.
-* unionType.js : Define union type for dynamic data schema.
-* mutation.js : Implement mutation.
-
-
-### Type definition and basic resolve implementation
-
-- The type, query definiton, and dummy data is located at src/graphql/module/basic.js
-- In this section, we implement a common jointed data structure, and use resolve to build an nested an query for that data structure.
-
-Example Query:
-```js
-query {
-  listCampaign {
-    list {
-      campaignId
-    }
-  }
-  queryCampaign(campaignId: "campaignId1") {
-    campaignId
-    adSet {
-      adSetId
-      creative {
-        creativeId
-      }
-    }
-  }
-}
-```
-
-
-### Use variable to Simplify Query and Define input type
-
-- The type, query definiton, and dummy data is located at src/graphql/module/variable.js
-- In this section, we define an input type to check whether query has an right parameter data structure or not. Thanks for this type definition, we can also abstract those query param to variable, and make your query more elegant.
-
-Example Query:
-```js
-query {
-  getStatistic(list: [1, 2, 3]){
-    min
-    max
-    sum
-  }
-  getProduct(input: {x: 3, y: 5}){
-    result
-  }
-}
-```
-
-Example Query (use variable):
-```js
-query ($array: [Float], $input: MultiplierInputType) {
-  getStatistic(list: $array) {
-    min
-    max
-    sum
-  }
-  getProduct(input: $input) {
-    result
-  }
-}
-```
-
-Variable:
-```js
-{
-  "array": [1,2,3],
-  "input": {"x": 3, "y": 5}
-}
-```
-
-### Build an interface for fragment query
-
-- The type, query definiton, and dummy data is located at src/graphql/module/interface.js
-- In this section, we define an interface to allow different type to share the same fields. With help of interface definition, we are able to use fragment to simplify our queries involving different type with same fields.
-
-Example Query (Fragment through type definition):
-```js
-query {
-  perofrmance1: queryAppPerformance(appId: "appId1") {
-    appId
-    ...performance
-  }
-  performance2: queryAppPerformance(appId: "appId2") {
-    appId
-    ...performance
-  }
-}
-fragment performance on AppPeroformanceType {
-  cost
-  action
-  click
-  impression
-}
-```
-
-Example Query (Fragment through interface definition):
-```js
-query {
-  queryAppPerformance(appId: "appId1") {
-    appId
-    ...performance
-  }
-  queryCreativePerformance(creativeId: "creativeId1") {
-    creativeId
-    ...performance
-  }
-}
-fragment performance on PerformanceInterface {
-  cost
-  action
-  click
-  impression
-}
-```
-
-### Define union type for dynamic data schema
-
-- The type, query definiton, and dummy data is located at src/graphql/module/unionType.js
-- In this section, we define serveral union type for querying data with dynamic structure. Union type and interface is just like the two sides of coin, and we usually choose the one which can describe our data schema best.
-
-```js
-query {
-  listCreative {
-    ... on TextType {
-      creativeId
-      type
-      text
-    }
-    ... on BannerType {
-      creativeId
-      type
-      width
-      height
-      url
-    }
-    ... on VideoType {
-      creativeId
-      type
-      file
-    }
-  }
-}
-```
-
-
-### Implement mutation
-
-- The type, query definiton, and dummy data is located at src/graphql/module/mutation.js
-- In this section, we implement simple mutation for creating and updating our data.
-
-```js
-query listCompany{
-  listCompany{
-    companyId,
-    name
-  }
-}
-
-mutation createCompany {
-  createCompany(name: "foobar") {
-    companyId
-    name
-  }
-}
-
-mutation updateCompany {
-  updateCompany(companyId: "companyId1", name: "appier2") {
-    companyId
-    name
-  }
-}
-```
