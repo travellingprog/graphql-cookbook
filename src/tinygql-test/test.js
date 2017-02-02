@@ -1,5 +1,5 @@
 (function () {
-  const gql = new TinyGQL({ url: 'phonyUrl' });
+  const gql = new TinyGQL();
 
   gql.storeFragment(`
     fragment companyFragment on CompanyType {
@@ -55,7 +55,7 @@
   }
 
   function getUpdatedCompanyList() {
-    gql.removeFragment('companyFragment');
+    // gql.removeFragment('companyFragment');   // intentional error
     gql.send(query, errorWrapper(processCompanyList));
   }
 

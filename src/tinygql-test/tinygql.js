@@ -12,7 +12,6 @@
     opts = opts || {};
     this.opts = {
       url: opts.url || '/graphql',
-      usePromise: opts.usePromise || false,
       sendModifier: opts.sendModifier || null,
     };
 
@@ -36,7 +35,6 @@
   }
 
   TinyGQL.prototype.send = function () {
-    var response = null;
     var argsObj = getSendArguments(Array.prototype.slice.call(arguments));
     var query = argsObj.query;
     var variables = argsObj.variables;
@@ -45,18 +43,6 @@
     var callback = argsObj.callback;
 
     var fragmentMap = getFragmentMap(query, this.fragments);
-
-    if (this.usePromise) {
-      response = new Promise(function(resolve, reject) {
-        callback = function (err, data) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(data);
-          }
-        };
-      });
-    }
 
     var body = createBody(query, variables, operationName, fragmentMap);
     var xhr = createXHR(this.opts.url, callback);
@@ -68,7 +54,6 @@
     }
 
     xhr.send(JSON.stringify(body));
-    return response;
   }
 
   function getSendArguments(args) {
