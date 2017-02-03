@@ -18,9 +18,9 @@
 
     gql.storeFragment('\n    fragment companyFragment on CompanyType {\n      companyId\n      name\n    }\n  ');
 
-    var query = '\n    {\n      listCompany {\n        ...companyFragment\n      }\n    }\n  ';
+    var request = '\n    {\n      listCompany {\n        ...companyFragment\n      }\n    }\n  ';
 
-    gql.send(query, function (err, data) {
+    gql.send({ request: request }, function (err, data) {
       if (err) {
         console.error(err);
       } else {
@@ -28,41 +28,7 @@
       }
     });
 
-    gql.send({
-      query: 'mutation CreateCompany($name: String!) {\n      createCompany(name: $name) {\n        ...companyFragment\n      }\n    }',
-
-      variables: { name: 'Tech Underground' },
-
-      // callback: (err, data) => {
-      //   if (err) {
-      //     console.error(err);
-      //   } else {
-      //     console.log('new company', data);
-
-      //     gql.send(query, (err, data) => {
-      //       console.log('updated company list', data);
-      //     });
-      //   }
-      // }
-
-      callback: errorWrapper(processData)
-    });
-
-    function processData(data, next) {
-      console.log('new company', data);
-      getUpdatedCompanyList();
-    }
-
-    function getUpdatedCompanyList() {
-      // gql.removeFragment('companyFragment');   // intentional error
-      gql.send(query, errorWrapper(processCompanyList));
-    }
-
-    function processCompanyList(data) {
-      console.log('updated company list', data);
-    }
-
-    function errorWrapper(dataHandler) {
+    var errorWrapper = function errorWrapper(dataHandler) {
       return function (err, data) {
         if (err) {
           console.log('err.name', err.name);
@@ -71,6 +37,25 @@
           dataHandler(data);
         }
       };
-    }
+    };
+
+    var processCompanyList = errorWrapper(function (data) {
+      console.log('updated company list', data);
+    });
+
+    var getUpdatedCompanyList = function getUpdatedCompanyList() {
+      gql.send({ request: request }, processCompanyList);
+    };
+
+    var processData = errorWrapper(function (data) {
+      console.log('new company', data);
+      getUpdatedCompanyList();
+    });
+
+    gql.send({
+      request: 'mutation CreateCompany($name: String!) {\n      createCompany(name: $name) {\n        ...companyFragment\n      }\n    }',
+
+      variables: { name: 'Tech Underground' }
+    }, processData);
   })();
 });

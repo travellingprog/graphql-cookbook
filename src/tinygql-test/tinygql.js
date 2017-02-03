@@ -34,17 +34,15 @@
     delete this.fragments[fragmentName];
   }
 
-  TinyGQL.prototype.send = function () {
-    var argsObj = getSendArguments(Array.prototype.slice.call(arguments));
-    var query = argsObj.query;
-    var variables = argsObj.variables;
-    var operationName = argsObj.operationName;
-    var sendModifier = argsObj.sendModifier || this.sendModifier;
-    var callback = argsObj.callback;
+  TinyGQL.prototype.send = function (input, callback) {
+    var request = input.request;
+    var variables = input.variables;
+    var operationName = input.operationName;
+    var sendModifier = input.sendModifier || this.sendModifier;
 
-    var fragmentMap = getFragmentMap(query, this.fragments);
+    var fragmentMap = getFragmentMap(request, this.fragments);
 
-    var body = createBody(query, variables, operationName, fragmentMap);
+    var body = createBody(request, variables, operationName, fragmentMap);
     var xhr = createXHR(this.opts.url, callback);
 
     if (sendModifier) {
@@ -54,31 +52,6 @@
     }
 
     xhr.send(JSON.stringify(body));
-  }
-
-  function getSendArguments(args) {
-    var inputObj = {};
-
-    if (typeof args[0] === 'string') {
-      inputObj.query = args[0];
-
-      if (args[1] && Object.prototype.toString.call(args[1]) === '[object Function]') {
-        inputObj.callback = args[1];
-      } else {
-        inputObj.variables = args[1];
-        inputObj.callback = args[2];
-      }
-    } else {
-      inputObj = args[0];
-    }
-
-    return {
-      query: inputObj.query.trim(),
-      variables: inputObj.variables || null,
-      operationName: inputObj.operationName || null,
-      sendModifier: inputObj.sendModifier || null,
-      callback: inputObj.callback
-    };
   }
 
   function getFragmentMap(queryOrFragment, storedFragments, fragmentMap) {
@@ -99,14 +72,14 @@
     return fragmentMap;
   }
 
-  function createBody(query, variables, operationName, fragmentMap) {
+  function createBody(request, variables, operationName, fragmentMap) {
     var fragments = [];
     for (var key in fragmentMap) {
       fragments.push(fragmentMap[key]);
     }
-    query = [query].concat(fragments).join('\n');
+    request = [request].concat(fragments).join('\n');
 
-    var body = { query: query };
+    var body = { query: request };
     if (variables) body.variables = variables;
     if (operationName) body.operationName = operationName;
     return body;
