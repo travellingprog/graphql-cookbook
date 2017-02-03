@@ -18,9 +18,9 @@
 
     gql.storeFragment('\n    fragment companyFragment on CompanyType {\n      companyId\n      name\n    }\n  ');
 
-    var request = '\n    {\n      listCompany {\n        ...companyFragment\n      }\n    }\n  ';
+    var query = '\n    {\n      listCompany {\n        ...companyFragment\n      }\n    }\n  ';
 
-    gql.send({ request: request }, function (err, data) {
+    gql.send({ query: query }, function (err, data) {
       if (err) {
         console.error(err);
       } else {
@@ -44,7 +44,7 @@
     });
 
     var getUpdatedCompanyList = function getUpdatedCompanyList() {
-      gql.send({ request: request }, processCompanyList);
+      gql.send({ query: query }, processCompanyList);
     };
 
     var processData = errorWrapper(function (data) {
@@ -53,7 +53,7 @@
     });
 
     gql.send({
-      request: 'mutation CreateCompany($name: String!) {\n      createCompany(name: $name) {\n        ...companyFragment\n      }\n    }',
+      mutation: 'mutation CreateCompany($name: String!) {\n      createCompany(name: $name) {\n        ...companyFragment\n      }\n    }',
 
       variables: { name: 'Tech Underground' }
     }, processData);

@@ -34,15 +34,15 @@
     delete this.fragments[fragmentName];
   }
 
-  TinyGQL.prototype.send = function (input, callback) {
-    var request = input.request;
-    var variables = input.variables;
-    var operationName = input.operationName;
-    var sendModifier = input.sendModifier || this.sendModifier;
+  TinyGQL.prototype.send = function (request, callback) {
+    var query = request.query || request.mutation;
+    var variables = request.variables;
+    var operationName = request.operationName;
+    var sendModifier = request.sendModifier || this.sendModifier;
 
-    var fragmentMap = getFragmentMap(request, this.fragments);
+    var fragmentMap = getFragmentMap(query, this.fragments);
 
-    var body = createBody(request, variables, operationName, fragmentMap);
+    var body = createBody(query, variables, operationName, fragmentMap);
     var xhr = createXHR(this.opts.url, callback);
 
     if (sendModifier) {
@@ -72,14 +72,14 @@
     return fragmentMap;
   }
 
-  function createBody(request, variables, operationName, fragmentMap) {
+  function createBody(query, variables, operationName, fragmentMap) {
     var fragments = [];
     for (var key in fragmentMap) {
       fragments.push(fragmentMap[key]);
     }
-    request = [request].concat(fragments).join('\n');
+    query = [query].concat(fragments).join('\n');
 
-    var body = { query: request };
+    var body = { query: query };
     if (variables) body.variables = variables;
     if (operationName) body.operationName = operationName;
     return body;

@@ -4,7 +4,7 @@
   "description": "Learning create a graphql server by example code.",
   "author": "CY Li",
   "scripts": {
-    "start": "nodemon src/index.js -i *.dist.js --exec babel-node --presets stage-0",
+    "start": "nodemon src/index.js -i *.dist.js -i *.min.js --exec babel-node --presets stage-0",
     "build": "babel src -d build"
   },
   "dependencies": {
@@ -12,7 +12,8 @@
     "express": "^4.13.4",
     "express-graphql": "^0.5.1",
     "express-session": "^1.13.0",
-    "graphql": "^0.5.0"
+    "graphql": "^0.5.0",
+    "uglify-js": "^2.7.5"
   },
   "devDependencies": {
     "babel-cli": "^6.8.0",

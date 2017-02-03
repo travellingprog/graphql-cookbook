@@ -8,7 +8,7 @@
     }
   `);
 
-  let request = `
+  let query = `
     {
       listCompany {
         ...companyFragment
@@ -16,7 +16,7 @@
     }
   `;
 
-  gql.send({ request }, (err, data) => {
+  gql.send({ query }, (err, data) => {
     if (err) {
       console.error(err);
     } else {
@@ -40,7 +40,7 @@
   });
 
   const getUpdatedCompanyList = function() {
-    gql.send({ request }, processCompanyList);
+    gql.send({ query }, processCompanyList);
   };
 
   const processData = errorWrapper(data => {
@@ -49,7 +49,7 @@
   });
 
   gql.send({
-    request: `mutation CreateCompany($name: String!) {
+    mutation: `mutation CreateCompany($name: String!) {
       createCompany(name: $name) {
         ...companyFragment
       }
